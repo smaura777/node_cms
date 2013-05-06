@@ -60,6 +60,11 @@ function start(resp,postData){
 	});
 
      **/
+     var my_data = "";
+     if (postData){
+     	 my_data = querystring.parse(postData).comment_data;
+     	 console.log("The data == "+ my_data);
+     }
      
      resp.writeHead(200,{"Content-Type":"text/html"});
      pageStart(resp);
@@ -67,8 +72,9 @@ function start(resp,postData){
     
 
        resp.write("<div class=\"main\"><h2> Comments count : "+counter+" </h2><div class=\"comments\"></div>\
+     			    <div class=\"result\">"+my_data+"</div>\
      			    <div class=\"comment_form\">\
-     			    	<form action=\"/upload\" method=\"POST\">\
+     			    	<form action=\"/start\" method=\"POST\">\
      			    		<textarea name=\"comment_data\" rows=\"20\" cols=\"60\"></textarea>\
      			    		<input type=\"submit\" value=\"status\">\
      			    	</form>\

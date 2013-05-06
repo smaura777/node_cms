@@ -18,7 +18,7 @@ function start(route,handle){
     		route(handle,pathname,resp,postData);
     	});
     	
-    	route(handle,pathname,resp);
+    	//route(handle,pathname,resp);
     	console.log("Request for "+pathname+" received");
 		
 		/**
