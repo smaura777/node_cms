@@ -1,6 +1,8 @@
 var exec = require("child_process").exec;
 var fs = require("fs");
-var querystring = require("querystring");
+var querystring = require("querystring"),
+  formidable = require("formidable");
+
 var counter=0;
 var postRes = "";
 
@@ -103,9 +105,18 @@ function upload(resp,postData){
 	resp.end();
 }
 
+function show (resp){
+	console.log("Request handler show callerd");
+	resp.writeHead(200,{"Content-Type":"text/plain"});
+	resp.write("What would you like to see? \n");
+	resp.end();
+	
+}
+
 exports.start = start;
 exports.upload = upload;
 exports.defaultPage = _default;
+exports.show = show;
 
 exports.upload = upload;
 
