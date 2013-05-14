@@ -1,7 +1,8 @@
 var http = require("http");
 var url = require("url");
-var formidable = require("formidable");
-var sys = require("sys");
+var formidable = require('formidable');
+//var sys = require("sys");
+ var util = require('util');
 
 
 function start(route,handle){
@@ -9,28 +10,23 @@ function start(route,handle){
     	//console.log(req.headers); 
     	var pathname = url.parse(req.url).pathname;
     	var postData = "";
-    	req.setEncoding("utf8");
     	
     	if (pathname =='/upload' && req.method.toLowerCase() == 'post'){
     		console.log("Uploading ...");
     		
-    		//req.addListener("end",function(chunk){
     		  console.log("End post");
 			  var form = new formidable.IncomingForm();
 			  form.parse(req,function(err,fields,files){
 				resp.writeHead(200,{'Content-type':'text/plain'});
 				resp.write('received upload: \n\n');
-				resp.end(sys.inspect({fields:fields,files:files}));
-			
-			    });
-    	    
-    	    //});
-    		
+				resp.end(util.inspect({fields:fields, files:files}));
+			});
+    	    	
     		return;	
     	}
-    	else if (req.method.toLowerCase() != 'post'){
-    		route(handle,pathname,resp,postData);
-    	}
+    	
+    	route(handle,pathname,resp,postData);
+    	
     	
     	/**
     	req.addListener("data",function(chunk){
