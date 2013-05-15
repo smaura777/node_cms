@@ -15,12 +15,16 @@ function start(route,handle){
     		console.log("Uploading ...");
     		
     		  console.log("End post");
+			  /**
 			  var form = new formidable.IncomingForm();
+			  form.uploadDir = '/tmp';
+			  
 			  form.parse(req,function(err,fields,files){
 				resp.writeHead(200,{'Content-type':'text/plain'});
 				resp.write('received upload: \n\n');
 				resp.end(util.inspect({fields:fields, files:files}));
 			});
+			**/
     	    	
     		return;	
     	}

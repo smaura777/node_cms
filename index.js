@@ -1,5 +1,3 @@
-
-/**
 var formidable = require('formidable'),
     http = require('http'),
     util = require('util');
@@ -8,14 +6,27 @@ var formidable = require('formidable'),
 http.createServer(function(req, res) {
   if (req.url == '/upload' && req.method.toLowerCase() == 'post') {
     // parse a file upload
-    var form = new formidable.IncomingForm();
-
+    
+    console.log("Hello there...");
+    
+      //res.writeHead(200, {'content-type': 'text/plain'});
+      //res.write("Ok there..");
+      //res.end();  
+    
+    
+     var form = new formidable.IncomingForm();
+      form.uploadDir = '/tmp';
+    console.log("Hello there 2 ...");
+    
+      
     form.parse(req, function(err, fields, files) {
+  	  console.log("Hello there 3 ...");		
       res.writeHead(200, {'content-type': 'text/plain'});
       res.write('received upload:\n\n');
+      res.write("files +++++  "+ files.upload.size +"\n\n");
       res.end(util.inspect({fields: fields, files: files}));
     });
-
+     console.log("Hello there 4 ...");		
     return;
   }
 
@@ -30,10 +41,10 @@ http.createServer(function(req, res) {
   );
 }).listen(8080);
 
-**/
 
 
 
+/**
 var server = require("./server");
 var router = require("./router");
 var requestHandlers = require("./requestHandlers");
@@ -45,3 +56,5 @@ handle["/upload"] = requestHandlers.upload;
 handle["/show"] = requestHandlers.show;
 
 server.start(router.route,handle);
+
+***/
