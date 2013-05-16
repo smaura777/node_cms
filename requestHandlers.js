@@ -1,13 +1,12 @@
 var exec = require("child_process").exec;
 var fs = require("fs");
+var util = require('util');
 var querystring = require("querystring"),
   formidable = require("formidable");
-
-var counter=0;
-var postRes = "";
+  
 
 
-function _default(resp){
+function _default(resp,req){
 	 // Open index.html
      fs.readFile('index.html','utf8',function(err,data){
      	resp.writeHead(200,{"Content-Type":"text/html"});
@@ -48,11 +47,9 @@ function pageEnd(resp){
 }
 
 
-function start(resp,postData){
+
+function start(resp,req){
 	console.log("Request handler 'start' called. ");
-	
-	
-	
 	
 	// Testing code
 	var sleep = function(milliseconds){
@@ -60,7 +57,7 @@ function start(resp,postData){
 		while(new Date().getTime() < startTime + milliseconds);
 	}
 	
-	console.log("DATA 2 ==> " + postRes);
+	//console.log("DATA 2 ==> " + postRes);
 	
 	/**
 	var content = 'empty';
@@ -70,26 +67,18 @@ function start(resp,postData){
 		console.log("Output of Command :");
 		console.log(""+content+"");
 		console.log("====== end ======");
-		
 		resp.writeHead(200,{"Content-Type":"text/plain"});
 		resp.write(""+stdout+"");
 		resp.end();
 	});
 
      **/
-     var my_data = "";
-     if (postData){
-     	 my_data = querystring.parse(postData).comment_data;
-     	 console.log("The data == "+ my_data);
-     }
      
      resp.writeHead(200,{"Content-Type":"text/html"});
      pageHeaderStart(resp);
      pageInlineCSS(resp);
      pageHeaderEnd(resp);
-    
-
-       resp.write("<div class=\"main\">\
+     resp.write("<div class=\"main\">\
        <div id=\"main_menu\">\
        		<ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul>\
        </div>\
@@ -100,31 +89,21 @@ function start(resp,postData){
      			    		<div><input type=\"submit\" value=\"post\"></div>\
      			    	</form>\
      			   </div>\
-     		     </div>");
-     		   
-     
+     		     </div>");  		   
      pageEnd(resp);
-    resp.end();
-     counter +=1;
+     resp.end();
 }
 
-function upload(resp,postData){
-    var tst = {};
-    tst['me'] = "fdsf hello";
-    var my_data = querystring.parse(postData);
+function upload(resp,req){
+     //var my_data = querystring.parse(postData);
+    //console.log("Request handler 'upload' called with  "+ postData);
 	
-	console.log("Request handler 'upload' called with  "+ postData);
 	resp.writeHead(200,{"Content-Type":"text/plain"});
-	//pageStart(resp);
-	resp.write("UPLOAD " + "Yoooo" + " ");
-	resp.write("UPLOAD " + tst.me + " " + my_data);
-	//resp.write(utils.inspect( querystring.parse(postData) ));
-	//pageEnd(resp);
-	
+	resp.write("Hello..");
 	resp.end();
 }
 
-function show (resp){
+function show (resp,req){
 	console.log("Request handler show callerd");
 	resp.writeHead(200,{"Content-Type":"text/plain"});
 	resp.write("What would you like to see? \n");
