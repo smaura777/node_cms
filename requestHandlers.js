@@ -3,7 +3,9 @@ var fs = require("fs");
 var util = require('util');
 var querystring = require("querystring"),
   formidable = require("formidable"),
-  mime = require("mime");
+  mime = require("mime"),
+  im = require('imagemagick');
+  
   
 
 function pageHeaderStart(resp){
@@ -197,6 +199,20 @@ function show (resp,req){
 	var ftype = mime.lookup(cpath);
 	console.log("MIME: " + ftype);
 	
+	
+	im.readMetadata(cpath, function(err, metadata){
+	
+    	if (err) {
+    		console.log("Error reading photo data with imagemagick");
+    	}
+    	else {
+    		console.log('Shot at '+metadata.exif.dateTimeOriginal);
+    	}
+    	
+    })
+	
+	
+		
 	fs.readFile(cpath,"binary",function(err,data){
 			if (err){
 	   			console.log("Error reading file " + cpath);	
