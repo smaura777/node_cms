@@ -20,10 +20,12 @@ function start(route,handle){
     	console.log("query "+ query);
     	console.log("Request for "+pathname+" received");
     	
+    	/**
     	var filename = req.url.toString().split('=');
     	if ( typeof filename == 'object' && filename.length > 1){
     	  console.log("filename is  " + filename[1]);
     	}
+    	**/
     	
     	route(handle,pathname,resp,req);
     	console.log("dirname = "+ __dirname);

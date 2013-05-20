@@ -46,6 +46,10 @@ handle["/upload"] = requestHandlers.upload;
 handle["/show"] = requestHandlers.show;
 handle["/show/"] = requestHandlers.show;
 handle["static"] = requestHandlers.staticResource;
+handle["/notes"] = requestHandlers.notes;
+handle["/note/add"] = requestHandlers.add_note;
+handle["/note/delete"] = requestHandlers.remove_note;
+handle["/note/update"] = requestHandlers.update_note;
 
 server.start(router.route,handle);
 

@@ -6,7 +6,17 @@ var querystring = require("querystring"),
   mime = require("mime"),
   im = require('imagemagick');
   
+var mongodb = require('mongodb');
+var server = new mongodb.Server("127.0.0.1", 27017, {});
+var server2 = new mongodb.Server("127.0.0.1", 27017, {});
+ 
+ var connection = new mongodb.Db('test', server, {w:1});
+ var connection2 = new mongodb.Db('Notes', server2, {w:1}); 
   
+  /**
+  var mongoClient = require('mongodb').MongoClient,
+   mongoServer = require('mongodb').Server;
+  **/
 
 function pageHeaderStart(resp){
 	resp.write("<!DOCTYPE html><html lang=\"en\"><head><title>Bootstrap 101 Template</title>\
@@ -44,6 +54,12 @@ function pageEnd(resp){
 function start(resp,req){
 	console.log("Request handler 'start' called. ");
 	
+	
+	
+  
+	
+	
+	
 	// Testing code
 	var sleep = function(milliseconds){
 		var startTime = new Date().getTime();
@@ -52,21 +68,51 @@ function start(resp,req){
 	
 	//console.log("DATA 2 ==> " + postRes);
 	
-	/**
-	var content = 'empty';
-	exec("find /Users/smaura777/ -name \"*.css\"",function(error,stdout,stderr){
-
-		content = stdout;
-		console.log("Output of Command :");
-		console.log(""+content+"");
-		console.log("====== end ======");
-		resp.writeHead(200,{"Content-Type":"text/plain"});
-		resp.write(""+stdout+"");
-		resp.end();
-	});
-
-     **/
+	
+    
      
+      connection.open(function (error, client) {
+      if (error) throw error;
+      var collection = new mongodb.Collection(client, 'Accounts');
+      collection.find({}, {limit:10}).toArray(function(err, docs) {
+        console.log("Will print results if any "); 
+        console.log(" "+ docs.length); 
+        console.log("============================================================="); 
+        console.dir(docs);
+        
+        			
+        resp.writeHead(200,{"Content-Type":"text/html"});
+     	pageHeaderStart(resp);
+     	pageInlineCSS(resp);
+    	pageHeaderEnd(resp);
+     	resp.write("<div class=\"main\">\
+       	<div id=\"main_menu\">\
+       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
+     		
+     		resp.write("<table>");
+     		docs.forEach(function(el){
+     			resp.write("<tr><td>"+el._id+"</td><td>"+el.username+"</td> <td>"+el.email+"</td> <td>"+el.password+"</td></tr>   ");
+     		});	
+     		
+     		resp.write("</table>");
+     	
+     	      resp.write("<div class=\"comment_form\">\
+     			    	<form action=\"/upload\" method=\"POST\" enctype=\"multipart/form-data\">\
+     			    		<div><textarea placeholder=\"What\'s up? \" name=\"comment_data\" rows=\"5\" cols=\"60\"></textarea></div>\
+     			    		<div><input type=\"file\" name=\"media_asset\" accept=\"image/gif, image/jpeg, image/psd, application/zip, image/tiff, application/pdf, image/png\"></div>\
+     			    		<div><input type=\"submit\" value=\"post\"></div>\
+     			    	</form>\
+     			   </div>\
+     		     </div>");  		   
+     pageEnd(resp);
+     resp.end();
+     connection.close();   
+        
+        
+      });
+    });
+     
+     /**
      resp.writeHead(200,{"Content-Type":"text/html"});
      pageHeaderStart(resp);
      pageInlineCSS(resp);
@@ -85,6 +131,8 @@ function start(resp,req){
      		     </div>");  		   
      pageEnd(resp);
      resp.end();
+     **/
+     
 }
 
 function upload(resp,req){
@@ -283,6 +331,141 @@ function staticResource(resp,req){
 	
 	
 }
+
+exports.notes =  function (resp,req){
+	
+		 
+			 
+      connection2.open(function (error, client) {
+      if (error) throw error;
+      var collection = new mongodb.Collection(client, 'notes_collection');
+      collection.find({}, {limit:10}).toArray(function(err, docs) {
+        console.log("Will print results if any "); 
+        console.log(" "+ docs.length); 
+        console.log("============================================================="); 
+        console.dir(docs);
+        
+        			
+        resp.writeHead(200,{"Content-Type":"text/html"});
+     	pageHeaderStart(resp);
+     	pageInlineCSS(resp);
+    	pageHeaderEnd(resp);
+     	resp.write("<div class=\"main\">\
+       	<div id=\"main_menu\">\
+       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
+     		
+     		resp.write("<table>");
+     		docs.forEach(function(el){
+     			resp.write("<tr><td>"+el._id+"</td><td>"+el.desc+"</td> <td>"+el.category+"</td> </tr>   ");
+     		});	
+     		
+     		resp.write("</table>");
+     	    resp.write("<div class=\"add_note\"> <form method=\"post\" action=\"/note/add\" > <div> <textarea rows=\"1\" cols=\"50\" name=\"new_note\"></textarea>  </div> \
+     	      <div><input type=\"submit\" value=\"Add note\" ></div> </form>  </div> ");  	
+     	      
+     	     resp.write("</div>"); 	
+     	      	   
+            pageEnd(resp);
+            resp.end(); 
+             connection2.close();     
+        });
+      
+   });
+}
+
+exports.add_note =   function (resp,req){
+	 
+	  if (req.method.toLowerCase() == 'post'){
+	    var form = new formidable.IncomingForm();
+	    
+	     form.parse(req,function(err,fields,files){
+	      if (err) {
+	      	   console.log("error ......");
+	      }
+	      else {   
+	         console.log( "add notes : " +  util.inspect(fields));
+	         if (fields.new_note !== "" ){
+	         	console.log("data is posted ....");
+	         	
+	         	  connection2.open(function (error, client) {
+     			    if (error) throw error;
+     			    var collection = new mongodb.Collection(client, 'notes_collection');
+     			     collection.insert({desc:fields.new_note, category:"online"}, {safe: true}, function(err,objects){
+     			       if (err) console.warn(err.message);
+     			       connection2.close();
+     			        resp.writeHead(301,{"Location":"/notes"});
+     			        resp.end();
+     			        
+     			     } );
+     			  });
+                   
+                        			 
+	         	
+	         	
+	         }
+	      }
+	    
+	   });
+	 }
+	 
+	 /**
+	 resp.writeHead(200,{"Content-Type":"text/html"});
+     	
+     	pageHeaderStart(resp);
+     	pageInlineCSS(resp);
+    	pageHeaderEnd(resp);
+     	resp.write("<div class=\"main\">\
+       	<div id=\"main_menu\">\
+       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
+     		resp.write("<h2>Add note</h2>");	
+     	    resp.write("</div>");  		   
+            pageEnd(resp);
+        
+            resp.end();
+        **/       
+}
+
+exports.remove_note = function (resp,req){
+	 resp.writeHead(200,{"Content-Type":"text/html"});
+     	pageHeaderStart(resp);
+     	pageInlineCSS(resp);
+    	pageHeaderEnd(resp);
+     	resp.write("<div class=\"main\">\
+       	<div id=\"main_menu\">\
+       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
+     		
+     		resp.write("<h2>remove note</h2>");
+     		
+     		
+     		
+     	    resp.write("</div>");  		   
+            pageEnd(resp);
+            resp.end();   
+
+}
+
+exports.update_note = function (resp,req){
+	   resp.writeHead(200,{"Content-Type":"text/html"});
+     	pageHeaderStart(resp);
+     	pageInlineCSS(resp);
+    	pageHeaderEnd(resp);
+     	resp.write("<div class=\"main\">\
+       	<div id=\"main_menu\">\
+       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
+     		
+     	 resp.write("<h2>update note</h2>");
+     	 resp.write("</div>");  		   
+         pageEnd(resp);
+         resp.end();   
+}
+
+
+
+
+
+
+
+
 
 exports.start = start;
 exports.upload = upload;
