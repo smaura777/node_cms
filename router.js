@@ -4,11 +4,16 @@ function route(handle,pathname,resp,req) {
 		handle[pathname](resp,req);
 	}
 	else {
+		handle["static"](resp,req);
+	}
+	/**
+	else {
 		console.log("No route for " + pathname);
 		resp.writeHead(404,{"Content-Type":"text/plain"});
 		resp.write("<H1>404</H1>");
 		resp.end();
 	}
+     **/
   
 }
 

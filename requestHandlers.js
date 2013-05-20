@@ -199,7 +199,7 @@ function show (resp,req){
 	var ftype = mime.lookup(cpath);
 	console.log("MIME: " + ftype);
 	
-	
+	/**
 	im.readMetadata(cpath, function(err, metadata){
 	
     	if (err) {
@@ -210,7 +210,7 @@ function show (resp,req){
     	}
     	
     })
-	
+	**/
 	
 		
 	fs.readFile(cpath,"binary",function(err,data){
@@ -250,11 +250,45 @@ function _default(resp,req){
      });
 }
 
+
+function staticResource(resp,req){
+	var pathname = __dirname + req.url;
+	console.log("pathname "+ pathname);
+	fs.stat(pathname,function(err,stats){
+		if (err){
+			resp.writeHead(404);
+			resp.write("Bad request 404\n");
+			resp.end();
+		}
+		else if (stats.isFile()){
+			var type = mime.lookup(pathname);
+			console.log("Static file type "+ type );
+			resp.setHeader('Content-Type',type);
+			resp.statusCode = 200;
+			var file = fs.createReadStream(pathname);
+			file.on("error",function(err){
+				console.log("file error " + err);
+			});
+			file.on("open",function(){	
+				file.pipe(resp);	
+			});
+		}
+		else {
+			resp.writeHead(403);
+			resp.write("Directory access is forbidden");
+			resp.end();
+		}
+			
+	});
+	
+	
+}
+
 exports.start = start;
 exports.upload = upload;
 exports.defaultPage = _default;
 exports.show = show;
-
+exports.staticResource = staticResource;
 exports.upload = upload;
 
 

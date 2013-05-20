@@ -45,6 +45,7 @@ handle["/start"] = requestHandlers.start;
 handle["/upload"] = requestHandlers.upload;
 handle["/show"] = requestHandlers.show;
 handle["/show/"] = requestHandlers.show;
+handle["static"] = requestHandlers.staticResource;
 
 server.start(router.route,handle);
 

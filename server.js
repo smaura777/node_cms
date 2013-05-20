@@ -26,6 +26,7 @@ function start(route,handle){
     	}
     	
     	route(handle,pathname,resp,req);
+    	console.log("dirname = "+ __dirname);
     	
 	}).listen(8084,function(){
 		  console.log("Connection receive for note service ");
