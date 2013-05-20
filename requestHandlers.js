@@ -339,7 +339,7 @@ exports.notes =  function (resp,req){
       connection2.open(function (error, client) {
       if (error) throw error;
       var collection = new mongodb.Collection(client, 'notes_collection');
-      collection.find({}, {limit:10}).toArray(function(err, docs) {
+      collection.find({} ).toArray(function(err, docs) {
         console.log("Will print results if any "); 
         console.log(" "+ docs.length); 
         console.log("============================================================="); 
