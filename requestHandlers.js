@@ -357,8 +357,8 @@ exports.notes =  function (resp,req){
      		resp.write("<table>");
      		docs.forEach(function(el){
      			resp.write("<tr><td>"+el._id+"</td><td>"+el.desc+"</td> <td>"+el.category+"</td> <td> <form method=\"post\" action=\"/note/delete\" >\
-     			<input type=\"hidden\" name=\"note_id\" value=\""+el._id+"\"><input type=\"submit\" value=\"delete\">\
-     			</form>  </td> </tr>   ");
+     			<input type=\"hidden\" name=\"note_id\" value=\""+el._id+"\"><input type=\"submit\" value=\"delete\"> \
+     			</form> </td> <td> <span><a href=\"/note/edit?id=234324\">edit</a></span> </td> </tr>   ");
      		});	
      		
      		resp.write("</table>");
@@ -445,19 +445,57 @@ exports.remove_note = function (resp,req){
 	 
 }
 
-exports.update_note = function (resp,req){
-	   resp.writeHead(200,{"Content-Type":"text/html"});
+
+exports.edit_note = function(resp,req){
+	
+	  resp.writeHead(200,{"Content-Type":"text/html"});
      	pageHeaderStart(resp);
      	pageInlineCSS(resp);
     	pageHeaderEnd(resp);
      	resp.write("<div class=\"main\">\
        	<div id=\"main_menu\">\
        	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
-     		
-     	 resp.write("<h2>update note</h2>");
-     	 resp.write("</div>");  		   
-         pageEnd(resp);
-         resp.end();   
+     	resp.write("</div>"); 	
+     	      	   
+            pageEnd(resp);
+            resp.end(); 
+
+} 
+
+exports.update_note = function (resp,req){
+	  
+	   if (req.method.toLowerCase() == 'post'){
+	    var form = new formidable.IncomingForm();
+	    
+	     form.parse(req,function(err,fields,files){
+	      if (err) {
+	      	   console.log("error ......");
+	      }
+	      else {   
+	         console.log( "add notes : " +  util.inspect(fields));
+	         if (fields.new_note !== "" ){
+	         	console.log("data is posted ....");
+	         	
+	         	  connection2.open(function (error, client) {
+     			    if (error) throw error;
+     			    var collection = new mongodb.Collection(client, 'notes_collection');
+     			     collection.insert({desc:fields.new_note, category:"online"}, {safe: true}, function(err,objects){
+     			       if (err) console.warn(err.message);
+     			       connection2.close();
+     			        resp.writeHead(301,{"Location":"/notes"});
+     			        resp.end();
+     			        
+     			     } );
+     			  });
+                   
+	         }
+	      }
+	    
+	   });
+	 }
+	 
+	  
+	  
 }
 
 

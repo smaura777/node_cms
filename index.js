@@ -50,6 +50,8 @@ handle["/notes"] = requestHandlers.notes;
 handle["/note/add"] = requestHandlers.add_note;
 handle["/note/delete"] = requestHandlers.remove_note;
 handle["/note/update"] = requestHandlers.update_note;
+handle["/note/edit"] = requestHandlers.edit_note;
+
 
 server.start(router.route,handle);
 
