@@ -356,11 +356,13 @@ exports.notes =  function (resp,req){
      		
      		resp.write("<table>");
      		docs.forEach(function(el){
-     			resp.write("<tr><td>"+el._id+"</td><td>"+el.desc+"</td> <td>"+el.category+"</td> </tr>   ");
+     			resp.write("<tr><td>"+el._id+"</td><td>"+el.desc+"</td> <td>"+el.category+"</td> <td> <form method=\"post\" action=\"/note/delete\" >\
+     			<input type=\"hidden\" name=\"note_id\" value=\""+el._id+"\"><input type=\"submit\" value=\"delete\">\
+     			</form>  </td> </tr>   ");
      		});	
      		
      		resp.write("</table>");
-     	    resp.write("<div class=\"add_note\"> <form method=\"post\" action=\"/note/add\" > <div> <textarea rows=\"1\" cols=\"50\" name=\"new_note\"></textarea>  </div> \
+     	    resp.write("<div class=\"add_note\"> <form method=\"post\" action=\"/note/add\" > <div> <input type=\"text\" size=\"100\" name=\"new_note\">  </div> \
      	      <div><input type=\"submit\" value=\"Add note\" ></div> </form>  </div> ");  	
      	      
      	     resp.write("</div>"); 	
@@ -399,49 +401,48 @@ exports.add_note =   function (resp,req){
      			     } );
      			  });
                    
-                        			 
-	         	
-	         	
 	         }
 	      }
 	    
 	   });
 	 }
 	 
-	 /**
-	 resp.writeHead(200,{"Content-Type":"text/html"});
-     	
-     	pageHeaderStart(resp);
-     	pageInlineCSS(resp);
-    	pageHeaderEnd(resp);
-     	resp.write("<div class=\"main\">\
-       	<div id=\"main_menu\">\
-       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
-     		resp.write("<h2>Add note</h2>");	
-     	    resp.write("</div>");  		   
-            pageEnd(resp);
-        
-            resp.end();
-        **/       
+	
 }
 
 exports.remove_note = function (resp,req){
-	 resp.writeHead(200,{"Content-Type":"text/html"});
-     	pageHeaderStart(resp);
-     	pageInlineCSS(resp);
-    	pageHeaderEnd(resp);
-     	resp.write("<div class=\"main\">\
-       	<div id=\"main_menu\">\
-       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
-     		
-     		resp.write("<h2>remove note</h2>");
-     		
-     		
-     		
-     	    resp.write("</div>");  		   
-            pageEnd(resp);
-            resp.end();   
+ 		console.log("Delete funct");
+ 		var objectID = require("mongodb").ObjectID;
 
+	 if (req.method.toLowerCase() == 'post'){
+	    var form = new formidable.IncomingForm();
+	    
+	     form.parse(req,function(err,fields,files){
+	      if (err) {
+	      	   console.log("error ......");
+	      }
+	      else {   
+	         console.log( "remove notes : " +  util.inspect(fields));
+	         if (fields.note_id !== "" ){
+	             console.log("Delete funct 2 ");
+	         	
+	         	  connection2.open(function (error, client) {
+     			    if (error) throw error;
+     			    var collection = new mongodb.Collection(client, 'notes_collection');
+     			     collection.remove({_id:objectID(fields.note_id)}, function(err,objects){
+     			       if (err) console.warn(err.message);
+     			       connection2.close();
+     			        resp.writeHead(301,{"Location":"/notes"});
+     			        resp.end();
+     			     } );
+     			  });
+                   
+	         }
+	      }
+	    
+	   });
+	 }
+	 
 }
 
 exports.update_note = function (resp,req){
