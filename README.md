@@ -1,5 +1,9 @@
 Node.js Photo uploader
 ========================
+
+
+http://preview.cmf.qa2.expressnews.com/news/local/news/local_news/article/Bill-would-open-Loop-1604-to-private-company-4477724.php
+
 http://cmf.qa2.expressnews.com/news/local_news/article/Bill-would-open-Loop-1604-to-private-company-4477724.php
 
 
