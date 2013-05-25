@@ -358,7 +358,7 @@ exports.notes =  function (resp,req){
      		docs.forEach(function(el){
      			resp.write("<tr><td>"+el._id+"</td><td>"+el.desc+"</td> <td>"+el.category+"</td> <td> <form method=\"post\" action=\"/note/delete\" >\
      			<input type=\"hidden\" name=\"note_id\" value=\""+el._id+"\"><input type=\"submit\" value=\"delete\"> \
-     			</form> </td> <td> <span><a href=\"/note/edit?id=234324\">edit</a></span> </td> </tr>   ");
+     			</form> </td> <td> <span><a href=\"/note/edit?id="+el._id+"\">edit</a></span> </td> </tr>   ");
      		});	
      		
      		resp.write("</table>");
