@@ -277,11 +277,7 @@ function show (resp,req){
 	   		}
 	});
 	
-	/**
-	resp.writeHead(200,{"Content-Type":"text/plain"});
-	resp.write("What would you like to see? \n");
-	resp.end();
-	**/
+	
 }
 
 
@@ -563,13 +559,6 @@ exports.update_note = function (resp,req){
 	 }
 
 }
-
-
-
-
-
-
-
 
 
 exports.start = start;
