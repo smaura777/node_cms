@@ -4,7 +4,8 @@ var util = require('util');
 var querystring = require("querystring"),
   formidable = require("formidable"),
   mime = require("mime"),
-  im = require('imagemagick');
+  im = require('imagemagick'),
+  url = require('url');
   
 var mongodb = require('mongodb');
 var server = new mongodb.Server("127.0.0.1", 27017, {});
@@ -333,10 +334,8 @@ function staticResource(resp,req){
 }
 
 exports.notes =  function (resp,req){
-	
-		 
 			 
-      connection2.open(function (error, client) {
+ connection2.open(function (error, client) {
       if (error) throw error;
       var collection = new mongodb.Collection(client, 'notes_collection');
       collection.find({} ).toArray(function(err, docs) {
@@ -446,56 +445,123 @@ exports.remove_note = function (resp,req){
 }
 
 
-exports.edit_note = function(resp,req){
+exports.edit_note = function(resp,req) {
+	var objectID = require("mongodb").ObjectID;
+
+	  //console.log("Request to edit : " + util.inspect(req));
+	   console.log("Request to edit : " + util.inspect(url.parse(req.url))  );
+	   
 	
-	  resp.writeHead(200,{"Content-Type":"text/html"});
-     	pageHeaderStart(resp);
-     	pageInlineCSS(resp);
-    	pageHeaderEnd(resp);
-     	resp.write("<div class=\"main\">\
-       	<div id=\"main_menu\">\
-       	  <ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
-     	resp.write("</div>"); 	
+	  var req_id = '';
+	  
+	   
+	   if (url.parse(req.url).query){
+	        console.log("Fine query... ");
+	   		if (url.parse(req.url).query.split("=").length > 1){
+	   		      console.log("Fine query... > 1 "); 
+	   		      console.log("ID == " + url.parse(req.url).query.split("=")[1] ); 
+	   		    req_id = url.parse(req.url).query.split("=")[1];	
+	   		}
+	   		else {
+	   		   console.log("Missing request parameter in  : " + req.url ); 
+	   		   resp.end(); 
+	   	       return ;
+	   		}
+	   }
+	   else {
+	         console.log("Bad request - missing query   : " + req.url ); 
+	       resp.end(); 
+	   	   return ;
+	   }
+	   
+	
+	  if (req_id) {
+	      console.log("REQ+ID = TRUE "); 
+	  	connection2.open(function (error, client) {
+      		if (error) throw error;
+      		var collection = new mongodb.Collection(client, 'notes_collection');
+        	collection.find({_id: objectID(req_id)} ).toArray(function(err, docs) {
+        		console.dir(docs);
+        		resp.writeHead(200,{"Content-Type":"text/html"});
+     			pageHeaderStart(resp);
+     			pageInlineCSS(resp);
+    			pageHeaderEnd(resp);
+     			resp.write("<div class=\"main\">\
+       			<div id=\"main_menu\">\
+       	  		<ul class=\"menu_set\"> <li><span>home</span></li> <li><span>upload</span></li> <li><span>misc</span></li> </ul></div>");
+     		
+     			
+     			docs.forEach(function(el){
+     				resp.write("<div><form method=\"post\" action=\"/note/update\" >\
+     				<input type=\"hidden\" name=\"note_id\" value=\""+el._id+"\">\
+     				<div>\
+     					<input type=\"text\" name=\"note_desc\" value=\""+el.desc+"\">\
+     				</div>\
+     				<div>\
+     					<input type=\"text\" name=\"note_category\" value=\""+el.category+"\">\
+     				</div>\
+     				<input type=\"submit\" value=\"update\">\
+     				</form></div>");
+     			});	
+     		
+     		
+     	    	
+  
+            resp.write("</div>"); 	
      	      	   
             pageEnd(resp);
             resp.end(); 
+             connection2.close();     
+        });
+      
+     });
 
-} 
+    }
+    else {
+    	resp.end();
+    	return;
+    }
+ 
+}
+
 
 exports.update_note = function (resp,req){
-	  
+	  var objectID = require("mongodb").ObjectID;
 	   if (req.method.toLowerCase() == 'post'){
 	    var form = new formidable.IncomingForm();
 	    
 	     form.parse(req,function(err,fields,files){
 	      if (err) {
 	      	   console.log("error ......");
+	      	   resp.end(); 
 	      }
 	      else {   
-	         console.log( "add notes : " +  util.inspect(fields));
-	         if (fields.new_note !== "" ){
+	         console.log( "update notes : " +  util.inspect(fields));
+	         if ( (fields.note_id !== "") && (fields.note_desc !== "") && (fields.note_category !== "") ){
 	         	console.log("data is posted ....");
 	         	
 	         	  connection2.open(function (error, client) {
      			    if (error) throw error;
-     			    var collection = new mongodb.Collection(client, 'notes_collection');
-     			     collection.insert({desc:fields.new_note, category:"online"}, {safe: true}, function(err,objects){
+     			     var collection = new mongodb.Collection(client, 'notes_collection');
+     			     collection.update( {_id: objectID(fields.note_id)}, {$set: {desc:fields.note_desc, category:fields.note_category}}, {safe: true}, function(err){
      			       if (err) console.warn(err.message);
      			       connection2.close();
-     			        resp.writeHead(301,{"Location":"/notes"});
-     			        resp.end();
+     			       resp.writeHead(301,{"Location":"/notes"});
+     			       resp.end();
      			        
-     			     } );
+     			      });
      			  });
                    
+	         }
+	         else {
+	         	console.log("Missing fields");
+	         	resp.end();
 	         }
 	      }
 	    
 	   });
 	 }
-	 
-	  
-	  
+
 }
 
 
